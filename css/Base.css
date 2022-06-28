@@ -1397,11 +1397,14 @@ html, body, .wrap {height:100%;}
 .p_visual [class^="pv_box_"] > i {display:block; width:20px; height:20px; border-radius:50%; background:#f27824;}
 .p_visual [class^="pv_box_"]:hover > i,
 .p_visual [class^="pv_box_"].open > i {border:3px solid #f27824; background:rgba(255,255,255,0.64);}
-.p_visual [class^="pv_box_"] .pv_video {display:none; position:absolute; top:100%; background:#000; color:#fff; min-width:240px; padding:12px 16px; font-size:12px; line-height:20px; font-weight:400 !important; border-radius:4px; margin-top:-8px;}
-.p_visual [class^="pv_box_"] .pv_video::before {display:block; content:''; width:8px; height:8px; position:absolute; top:6px;}
+.p_visual [class^="pv_box_"] .pv_video {display:none; position:absolute; top:100%; background:#000; color:#fff; min-width:240px; padding:12px 16px; font-size:12px; line-height:20px; font-weight:400 !important; border-radius:4px; margin-top:-24px;}
+/* .p_visual [class^="pv_box_"] .pv_video::before {display:block; content:''; width:8px; height:8px; position:absolute; top:6px;} */
 .p_visual [class^="pv_box_"] .pv_video strong {display:block; font-size:14px; line-height:22px;}
 .p_visual [class^="pv_box_"] .pv_video iframe {margin-top:8px;}
 .p_visual [class^="pv_box_"].open .pv_video {display:block;}
+.p_visual [class^="pv_box_"].open .pv_video > a {display:block;}
+.p_visual [class^="pv_box_"].open .pv_video > a > img {display:block; max-width:200px;}
+.p_visual .pv_box_02 .pv_video {margin-top:-48px;}
 .p_visual .pv_box_01 .pv_video,
 .p_visual .pv_box_02 .pv_video {left:100%;}
 .p_visual .pv_box_03 .pv_video,
@@ -1429,6 +1432,12 @@ html, body, .wrap {height:100%;}
 .p_visual .pv_box_07 {left:98.020%; top:51.737%;}
 .p_visual .pv_box_08 {left:97.721%; top:64.993%;}
 .p_visual .pv_box_09 {left:91.146%; top:76.962%;}
+
+.layer_popup {display:none; position:fixed; left:0; top:0; bottom:0; right:0; text-align:center; background:rgba(0,0,0,0.8);}
+.layer_popup.open {display:block;}
+.layer_popup .btn_close {display:block; width:24px; height:24px; background:url(../image/main/ico_64_close_w.png) no-repeat center center / 20px; position:absolute; right:16px; top:16px;}
+.layer_popup::before {display:inline-block; content:''; height:100%; vertical-align:middle;}
+.layer_popup > img {display:inline-block; vertical-align:middle; max-width:90%; max-height:90%;}
 
 .m_slide {padding:48px 0; max-width:1180px; margin:0 auto;}
 .m_slide .ms_title {text-align:center;}
