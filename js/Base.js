@@ -565,8 +565,24 @@ $(document).ready(function () {
     afterHasCheck(".s_tab", subTabScroll);
     BoxTgl();
     fnSlide({ dom: '.m_slide .ms_list', loop: true, auto: false, center: false });
+    mVisualInnerWidth();
 });
+function mVisualInnerWidth() {
+    var mVisualInner = $('.m_visual > div');
+    mVisualInner.css('width', mVisualInner.find('img').outerWidth());
+    var pVisualInner = $('.p_visual > div');
+    pVisualInner.css('width', pVisualInner.find('img').outerWidth());
 
+    $(window).on(
+        "resize",
+        $.debounce(80, function () {
+            var mVisualInner = $('.m_visual > div');
+            mVisualInner.css('width', mVisualInner.find('img').outerWidth());
+            var pVisualInner = $('.p_visual > div');
+            pVisualInner.css('width', pVisualInner.find('img').outerWidth());
+        })
+    );
+}
 function BoxTgl() {
     var box = $('[class^="mv_box_"], [class^="pv_box_"]');
     box.on('click', function(){
