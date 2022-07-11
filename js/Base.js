@@ -290,6 +290,339 @@ function fnSlide({ dom, loop, auto, center, direct, effect, breakPoint }) {
     }
 }
 
+/* Slide */
+function fnSlideNew({ dom, loop, auto, center, direct, effect, breakPoint }) {
+    var $dom = $(dom),
+        status = sCheck();
+
+    if ($dom.length > 0) {
+        /* s: set */
+        var strSW = "s_w",
+            strSL = "sw_l",
+            sL = $dom.find("." + strSL),
+            sLleng = sL.length,
+            sC = $dom.parents('.s_o').find(".s_c"),
+            sCleng = sC.length,
+            strBtnPrev = ".btn_prev",
+            strBtnNext = ".btn_next",
+            btnPrev = $dom.parents('.s_o').find(strBtnPrev),
+            btnNext = $dom.parents('.s_o').find(strBtnNext),
+            btnPause = $dom.parents('.s_o').find(".btn_pause"),
+            btnPlay = $dom.parents('.s_o').find(".btn_play"),
+            isBtn = btnPrev.length > 0 || btnNext.length > 0,
+            sP = $dom.parents('.s_o').find(".s_p"),
+            sPleng = sP.length;
+
+        sLleng === 0 &&
+            (sC.hide(),
+            sP.hide(),
+            btnPrev.hide(),
+            btnNext.hide(),
+            btnPause.hide(),
+            btnPlay.hide());
+
+        var sSlide = new Swiper(dom, {
+            wrapperClass: strSW,
+            slideClass: strSL,
+            loop: loop,
+            autoplay: auto,
+            centeredSlides: !center ? false : true,
+            direction: !direct ? "horizontal" : direct,
+            effect: !effect ? "slide" : effect,
+            slidesPerView: "auto",
+            slidesPerGroup: 1,
+            nested: true,
+            pagination: sPleng > 0 && {
+                el: sP,
+                clickable: true,
+                renderBullet: function (i, c) {
+                    return '<span class="' + c + '">' + (i + 1) + "</span>";
+                },
+            },
+            on: {
+                init: function () {
+                    $dom.parents('.s_o').find('.s_c').length > 0 &&
+                        ($dom.parents('.s_o').find(".s_c strong").text(1),
+                        $dom.parents('.s_o').find(".s_c span").text(sLleng));
+                    //$dom.find('.sw_l').find('a').attr('tabindex', '0');
+                    $dom.find(".swiper-slide-duplicate")
+                        .find("a")
+                        .attr("tabindex", "-1");
+                    $dom.parents('.s_o').find('sw_l').removeClass('disable');                               
+                    setTimeout(function(){
+                        $dom.parents('.s_o').find('.swiper-slide-active').addClass('disable');
+                    }, 2000);
+                },
+            },
+        });
+
+        sSlide.on("transitionEnd", function () {
+            $dom.parents('.s_o').find('.s_c').length > 0 && $dom.parents('.s_o').find(".s_c strong").text(sSlide.realIndex + 1);
+            $dom.parents('.s_o').find('sw_l').removeClass('disable');                               
+            setTimeout(function(){
+                $dom.parents('.s_o').find('.swiper-slide-active').addClass('disable');
+            }, 2000);
+        });
+
+        if (auto) {
+            btnPlay.hide();
+            btnPause.click(function () {
+                sSlide.autoplay.stop();
+                $(this).next().show();
+                $(this).hide();
+                return false;
+            });
+            btnPlay.click(function () {
+                sSlide.autoplay.start();
+                $(this).prev().show();
+                $(this).hide();
+                return false;
+            });
+        } else {
+            btnPlay.hide();
+            btnPause.hide();
+        }
+
+        btnPrev.click(function(){
+            console.log($(this));
+            sSlide.slidePrev();
+            return false;
+        });
+
+        btnNext.click(function(){
+            console.log($(this));
+            sSlide.slideNext();
+            return false;
+        });
+
+        $dom.find(".s_w .sw_l a").focusin(function () {
+            var isFirstIndex = loop
+                ? $(this).parents(".sw_l").attr("data-swiper-slide-index") ===
+                  "0"
+                : $(this).parents(".sw_l").index() === 0;
+
+            if (auto) {
+                sSlide.autoplay.stop();
+                $dom.parents('.s_o').find(".btn_pause").hide();
+                $dom.parents('.s_o').find(".btn_play").show();
+            }
+
+            loop
+                ? isFirstIndex && sSlide.slideToLoop(0)
+                : isFirstIndex && sSlide.slideTo(0);
+        });
+
+        $dom.find(".s_w").focusout(function () {
+            if (auto) {
+                sSlide.autoplay.start();
+                $dom.parents('.s_o').find(".btn_pause").show();
+                $dom.parents('.s_o').find(".btn_play").hide();
+            }
+        });
+
+        var domLastFocus = loop
+            ? $dom
+                  .find('.sw_l[data-swiper-slide-index="' + (sLleng - 1) + '"]')
+                  .find("a")
+            : $dom.find(".sw_l:last-child").find("a");
+
+        domLastFocus.keydown(function (e) {
+            var keyCode = e.keyCode || e.which;
+            if (keyCode === 9) {
+                sSlide.slideTo(0);
+                if (auto) {
+                    sSlide.autoplay.start();
+                    $dom.parents('.s_o').find(".btn_pause").show();
+                    $dom.parents('.s_o').find(".btn_play").hide();
+                }
+            }
+        });
+
+        /* e: set */
+
+        // breakPoint 프로퍼티를 가지고 있으면
+        if (breakPoint !== undefined) {
+            $(window).on(
+                "resize",
+                $.debounce(80, function () {
+                    var status = sCheck(),
+                        isSame = breakPoint.includes(status);
+
+                    // 현재 상태와 breakPoint가 같을 때
+                    if (isSame) {
+                        // 이미 실행한 상태면 return
+                        if (sSlide !== undefined) {
+                            return;
+                            // 실행하지 않은 상태면 slide
+                        } else {
+                            /* s: set */
+                            var strSW = "s_w",
+                                strSL = "sw_l",
+                                sL = $dom.find("." + strSL),
+                                sLleng = sL.length,
+                                sC = $dom.parents('.s_o').find(".s_c"),
+                                sCleng = sC.length,
+                                strBtnPrev = ".btn_prev",
+                                strBtnNext = ".btn_next",
+                                btnPrev = $dom.parents('.s_o').find(strBtnPrev),
+                                btnNext = $dom.parents('.s_o').find(strBtnNext),
+                                btnPause = $dom.parents('.s_o').find(".btn_pause"),
+                                btnPlay = $dom.parents('.s_o').find(".btn_play"),
+                                isBtn = btnPrev.length > 0 || btnNext.length > 0,
+                                sP = $dom.parents('.s_o').find(".s_p"),
+                                sPleng = sP.length;
+
+                            sLleng === 0 &&
+                                (sC.hide(),
+                                sP.hide(),
+                                btnPrev.hide(),
+                                btnNext.hide(),
+                                btnPause.hide(),
+                                btnPlay.hide());
+
+                            var sSlide = new Swiper(dom, {
+                                wrapperClass: strSW,
+                                slideClass: strSL,
+                                loop: loop,
+                                autoplay: auto,
+                                centeredSlides: !center ? false : true,
+                                direction: !direct ? "horizontal" : direct,
+                                effect: !effect ? "slide" : effect,
+                                slidesPerView: "auto",
+                                slidesPerGroup: 1,
+                                nested: true,
+                                pagination: sPleng > 0 && {
+                                    el: sP,
+                                    clickable: true,
+                                    renderBullet: function (i, c) {
+                                        return '<span class="' + c + '">' + (i + 1) + "</span>";
+                                    },
+                                },
+                                on: {
+                                    init: function () {
+                                        $dom.parents('.s_o').find('.s_c').length > 0 &&
+                                            ($dom.parents('.s_o').find(".s_c strong").text(1),
+                                            $dom.parents('.s_o').find(".s_c span").text(sLleng));
+                                        //$dom.find('.sw_l').find('a').attr('tabindex', '0');
+                                        $dom.find(".swiper-slide-duplicate")
+                                            .find("a")
+                                            .attr("tabindex", "-1");
+                                        $dom.parents('.s_o').find('sw_l').removeClass('disable');                               
+                                        setTimeout(function(){
+                                            $dom.parents('.s_o').find('.swiper-slide-active').addClass('disable');
+                                        }, 2000);
+                                    },
+                                },
+                            });
+
+                            sSlide.on("transitionEnd", function () {
+                                $dom.parents('.s_o').find('.s_c').length > 0 && $dom.parents('.s_o').find(".s_c strong").text(sSlide.realIndex + 1); 
+                                $dom.parents('.s_o').find('sw_l').removeClass('disable');                               
+                                setTimeout(function(){
+                                    $dom.parents('.s_o').find('.swiper-slide-active').addClass('disable');
+                                }, 2000);
+                            });
+
+                            if (auto) {
+                                btnPlay.hide();
+                                btnPause.click(function () {
+                                    sSlide.autoplay.stop();
+                                    $(this).next().show();
+                                    $(this).hide();
+                                    return false;
+                                });
+                                btnPlay.click(function () {
+                                    sSlide.autoplay.start();
+                                    $(this).prev().show();
+                                    $(this).hide();
+                                    return false;
+                                });
+                            } else {
+                                btnPlay.hide();
+                                btnPause.hide();
+                            }
+
+                            btnPrev.click(function(){
+                                sSlide.slidePrev();
+                                return false;
+                            });
+
+                            btnNext.click(function(){
+                                sSlide.slideNext();
+                                return false;
+                            });
+
+                            $dom.find(".s_w .sw_l a").focusin(function () {
+                                var isFirstIndex = loop
+                                    ? $(this).parents(".sw_l").attr("data-swiper-slide-index") ===
+                                    "0"
+                                    : $(this).parents(".sw_l").index() === 0;
+
+                                if (auto) {
+                                    sSlide.autoplay.stop();
+                                    $dom.parents('.s_o').find(".btn_pause").hide();
+                                    $dom.parents('.s_o').find(".btn_play").show();
+                                }
+
+                                loop
+                                    ? isFirstIndex && sSlide.slideToLoop(0)
+                                    : isFirstIndex && sSlide.slideTo(0);
+                            });
+
+                            $dom.find(".s_w").focusout(function () {
+                                if (auto) {
+                                    sSlide.autoplay.start();
+                                    $dom.parents('.s_o').find(".btn_pause").show();
+                                    $dom.parents('.s_o').find(".btn_play").hide();
+                                }
+                            });
+
+                            var domLastFocus = loop
+                                ? $dom
+                                    .find('.sw_l[data-swiper-slide-index="' + (sLleng - 1) + '"]')
+                                    .find("a")
+                                : $dom.find(".sw_l:last-child").find("a");
+
+                            domLastFocus.keydown(function (e) {
+                                var keyCode = e.keyCode || e.which;
+                                if (keyCode === 9) {
+                                    sSlide.slideTo(0);
+                                    if (auto) {
+                                        sSlide.autoplay.start();
+                                        $dom.parents('.s_o').find(".btn_pause").show();
+                                        $dom.parents('.s_o').find(".btn_play").hide();
+                                    }
+                                }
+                            });
+                            /* e: set */
+                        }
+                        // 현재 상태와 breakPoint 상태가 다른 경우
+                    } else {
+                        // 실행되지 않았다면 return
+                        if (sSlide === undefined) {
+                            return;
+                            // 값이 있을 때 (이미 한번 실행했다는 의미) destroy
+                        } else {
+                            sSlide[0].destroy(true, true);
+                            sSlide[1].destroy(true, true);
+                            sSlide = undefined;
+                        }
+                    }
+                })
+            );
+
+            var isSame = breakPoint.includes(status);
+
+            // 현재 상태와 breakPoint 상태가 다르더라도 무조건 한번 실행하고 destroy해야 한다.
+            if (!isSame) {
+                sSlide[0].destroy(true, true);
+                sSlide[1].destroy(true, true);
+                sSlide = undefined;
+            }
+        }
+    }
+}
+
 /* slide tab */
 function fnSlideTab() {
     if ($(".tab_scrl").length > 0) {
